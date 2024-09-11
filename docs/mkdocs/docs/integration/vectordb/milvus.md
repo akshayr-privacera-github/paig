@@ -69,8 +69,8 @@ Save the downloaded configuration file in a folder named `privacera` within the 
 
 ### 4. Initialize PAIG Client
 
-To enable data governance for Milvus in your application, include the following code snippet during the application's startup phase. 
-This ensures that data governance policies are consistently enforced throughout the application's lifecycle.
+To enable data filter for Milvus in your application, include the following code snippet during the application's startup phase. 
+This ensures that data filter policies are consistently enforced throughout the application's lifecycle.
 
 The code below initializes the Privacera Shield client and configures it to work with Milvus:
 ```python
@@ -111,7 +111,7 @@ Define the policy using the metadata fields and values you configured.
 
 ### 3. Apply and Test Data Filters in Milvus Operations
 
-To ensure that data filter policies are enforced during interactions with Milvus, wrap your Milvus operations within the context of the Privacera Shield client. This can be done using the `create_shield_context` method, as shown below, ensuring that all operations adhere to the governance policies for the specified user.
+To ensure that data filter policies are enforced during interactions with Milvus, wrap your Milvus operations within the context of the Privacera Shield client. This can be done using the `create_shield_context` method, as shown below, ensuring that all operations adhere to data filter policies for the specified user.
 
 ```python
 with privacera_shield_client.create_shield_context(username=user):
