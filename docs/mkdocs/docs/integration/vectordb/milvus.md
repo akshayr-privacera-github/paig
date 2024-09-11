@@ -2,6 +2,8 @@
 title: Integrating PAIG with Milvus
 ---
 
+# Integrating PAIG with Milvus
+
 ## Prerequisites:
 
 ### 1. Configuring Milvus Collection with Dynamic Fields:
@@ -46,6 +48,27 @@ milvus_client.insert(collection_name="example_collection", data=[
 Detailed instructions for inserting data with dynamic fields can be found in milvus documentation [here](https://milvus.io/docs/enable-dynamic-field.md#Insert-dynamic-data).
 
 ## Setup
+
+### 1. Create Vector DB
+
+Log in to the PAIG portal and navigate to **Application > VectorDB**. Click the **CREATE VECTOR DB** button in the top right corner. Select **Milvus** as the type and complete the required details to create a new VectorDB.
+
+!!! info "**Enable User/Group Access-Limited Retrieval** (Optional)" 
+    Once the Vector DB is created, go to the **Permissions** tab and enable the **User/Group Access-Limited Retrieval** option. 
+    This ensures that only authorized users and groups can retrieve data from the Vector DB, based on the users and groups specified in each record of the Milvus collection.
+
+### 2. Create AI Application
+
+Navigate to **Application > AI Application** and click the **CREATE APPLICATION** button in the top right corner. Fill in the required details and, under **Associated VectorDB**, 
+select the VectorDB created in the previous step to link the application with the VectorDB.
+
+### 3. Download Application Configuration File
+
+Navigate to the application you created in the previous step and click the **DOWNLOAD APP CONFIG** button in the top right corner. 
+Save the downloaded configuration file in a folder named `privacera` within the root directory of your application.
+
+### 4. Initialize PAIG Client
+
 To enable data governance for Milvus in your application, include the following code snippet during the application's startup phase. 
 This ensures that data governance policies are consistently enforced throughout the application's lifecycle.
 
@@ -64,12 +87,40 @@ paig_shield_client.setup(frameworks=["milvus"])
     paig_shield_client.setup(frameworks=["langchain", "milvus"])
     ```
 
-## Applying Data Governance in Milvus Operations
+## Usage
 
-To ensure that data governance policies are applied during any interaction with Milvus, wrap your Milvus operations within the context of the Privacera Shield client. 
-This can be done using the `create_shield_context` method, as shown below. This ensures that all operations are performed under the governance policies associated with the specified user.
+### 1. Define Metadata
+
+In the PAIG portal, go to **Account > Vector DB Metadata**. Click the plus icon to add the metadata fields you want to use for data filtering. 
+For example, as shown in the setup section:
+
+```json
+"metadata": {"security": "confidential", "country": "US"}
+```
+
+In this case, the metadata fields are "security" and "country," with "confidential" and "US" as their respective values.
+
+After creating the metadata fields, you can select a field and assign values by clicking on **ADD VALUE**. These fields and values can later be referenced in policies.
+
+### 2. Define Policies
+
+In the PAIG portal, go to **Application > VectorDB**. Select the VectorDB created earlier and navigate to the **Permissions** tab.
+
+Under the **RAG Contextual Data Filtering** section, click the **ADD DATA FILTERING** button to create a new policy. 
+Define the policy using the metadata fields and values you configured.
+
+### 3. Apply and Test Data Filters in Milvus Operations
+
+To ensure that data filter policies are enforced during interactions with Milvus, wrap your Milvus operations within the context of the Privacera Shield client. This can be done using the `create_shield_context` method, as shown below, ensuring that all operations adhere to the governance policies for the specified user.
 
 ```python
 with privacera_shield_client.create_shield_context(username=user):
     # Your Milvus operation here
 ```
+
+To test the integration, perform a Milvus operation within this context. The data filtering policies will be enforced, and you will only see data that complies with the defined policies.
+
+### 4. Monitor and Audit
+
+To monitor and audit data access and retrieval operations, go to the **Security > Access Audits** section in the PAIG portal. 
+Click on the **More Details** link for the most recent audit record to view the actual filter expression applied during data retrieval from Milvus.
